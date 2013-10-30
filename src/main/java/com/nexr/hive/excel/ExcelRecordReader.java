@@ -10,16 +10,18 @@ import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapred.JobConf;
 import org.apache.hadoop.mapred.RecordReader;
-import org.apache.poi.openxml4j.exceptions.InvalidFormatException;
 import org.apache.poi.openxml4j.opc.OPCPackage;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class ExcelRecordReader implements RecordReader<LongWritable, Text>{
-
+	private static final Logger logger = LoggerFactory.getLogger(ExcelRecordReader.class);
+	
 	private OPCPackage pkg;
 	private Workbook workbook;
 	private Sheet sheet;
@@ -27,16 +29,23 @@ public class ExcelRecordReader implements RecordReader<LongWritable, Text>{
 	private long max;
 	private long pos;
 
-	public ExcelRecordReader(JobConf conf, ExcelSplit split) throws IOException, InvalidFormatException{
+	public ExcelRecordReader(JobConf conf, ExcelSplit split) throws IOException{
+		logger.error("_______________________________________getRecordReader");
+
+		//String filepath = conf.get("hive.excel.file.path");		
 		String sheetName = conf.get("hive.excel.sheet.name");		
 		Integer sheetIndex = conf.getInt("hive.excel.sheet.index", 0);		
 
-		Path file = split.getPath();
-		FileSystem fs = file.getFileSystem(conf);
-		FSDataInputStream fis = fs.open(split.getPath());
+		Path path = split.getPath();
+		FileSystem fs = path.getFileSystem(conf);
+		FSDataInputStream fis = fs.open(path);
 		
-		pkg = OPCPackage.open(fis);
-		workbook = new XSSFWorkbook(pkg);
+		try{
+			pkg = OPCPackage.open(fis);
+			workbook = new XSSFWorkbook(pkg);
+		}catch(Exception e){
+			logger.error(null, e);
+		}
 		
 		if(StringUtils.isNotEmpty(sheetName)){
 			sheet = workbook.getSheet(sheetName);
@@ -56,6 +65,11 @@ public class ExcelRecordReader implements RecordReader<LongWritable, Text>{
 	}
 
 	@Override
+	public float getProgress() throws IOException {
+		return max==0 ? 1.0f : (float)pos / (float)max;
+	}
+
+	@Override
 	public LongWritable createKey() {
 		return new LongWritable();
 	}
@@ -71,13 +85,7 @@ public class ExcelRecordReader implements RecordReader<LongWritable, Text>{
 	}
 
 	@Override
-	public float getProgress() throws IOException {
-		return max==0 ? 1.0f : (float)pos / (float)max;
-	}
-
-	@Override
-	public boolean next(LongWritable key, Text value)
-			throws IOException {
+	public boolean next(LongWritable key, Text value) throws IOException {
 		Row row = sheet.getRow((int)pos);
 		if(row==null){
 			return false;
@@ -92,6 +100,7 @@ public class ExcelRecordReader implements RecordReader<LongWritable, Text>{
 		
 		key.set(pos);
 		value.set(sb.toString());
+
 		++pos;
 		return true;
 	}
