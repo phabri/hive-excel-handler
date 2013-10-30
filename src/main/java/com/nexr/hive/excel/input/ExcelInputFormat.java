@@ -1,4 +1,4 @@
-package com.nexr.hive.excel;
+package com.nexr.hive.excel.input;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -18,6 +18,8 @@ import org.apache.hadoop.mapred.Reporter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.nexr.hive.excel.ExcelSplit;
+
 public class ExcelInputFormat extends HiveInputFormat<LongWritable, Text> {
 	private static final Logger logger = LoggerFactory.getLogger(ExcelInputFormat.class);
 
@@ -25,10 +27,10 @@ public class ExcelInputFormat extends HiveInputFormat<LongWritable, Text> {
 	public RecordReader<LongWritable, Text> getRecordReader(
 			InputSplit split, JobConf conf,
 			Reporter reporter) throws IOException {
-		logger.debug("_______________________________________getRecordReader");
-		logger.debug(String.format("hive.excel.file.path=%s", conf.get("hive.excel.file.path")));
-		logger.debug(String.format("hive.excel.sheet.name=%s", conf.get("hive.excel.sheet.name")));
-		logger.debug(String.format("hive.excel.sheet.index=%s", conf.get("hive.excel.sheet.index")));
+		logger.info("_______________________________________getRecordReader");
+		logger.info(String.format("hive.excel.file.path=%s", conf.get("hive.excel.file.path")));
+		logger.info(String.format("hive.excel.sheet.name=%s", conf.get("hive.excel.sheet.name")));
+		logger.info(String.format("hive.excel.sheet.index=%s", conf.get("hive.excel.sheet.index")));
 
 		if(!(split instanceof ExcelSplit)){
 			throw new IOException("invalid input split");
@@ -40,10 +42,10 @@ public class ExcelInputFormat extends HiveInputFormat<LongWritable, Text> {
 	@Override
 	public InputSplit[] getSplits(JobConf conf,
 			int arg1) throws IOException {
-		logger.debug("_______________________________________getSplits");
-		logger.debug(String.format("hive.excel.file.path=%s", conf.get("hive.excel.file.path")));
-		logger.debug(String.format("hive.excel.sheet.name=%s", conf.get("hive.excel.sheet.name")));
-		logger.debug(String.format("hive.excel.sheet.index=%s", conf.get("hive.excel.sheet.index")));
+		logger.info("_______________________________________getSplits");
+		logger.info(String.format("hive.excel.file.path=%s", conf.get("hive.excel.file.path")));
+		logger.info(String.format("hive.excel.sheet.name=%s", conf.get("hive.excel.sheet.name")));
+		logger.info(String.format("hive.excel.sheet.index=%s", conf.get("hive.excel.sheet.index")));
 
 		//Configuration conf = context.getConfiguration();
 		String filepath = conf.get("hive.excel.file.path");

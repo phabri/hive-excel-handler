@@ -1,4 +1,4 @@
-package com.nexr.hive.excel;
+package com.nexr.hive.excel.input;
 
 import java.io.IOException;
 
@@ -19,6 +19,8 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.nexr.hive.excel.ExcelSplit;
+
 public class ExcelRecordReader implements RecordReader<LongWritable, Text>{
 	private static final Logger logger = LoggerFactory.getLogger(ExcelRecordReader.class);
 	
@@ -30,11 +32,12 @@ public class ExcelRecordReader implements RecordReader<LongWritable, Text>{
 	private long pos;
 
 	public ExcelRecordReader(JobConf conf, ExcelSplit split) throws IOException{
-		logger.error("_______________________________________getRecordReader");
+		logger.info("_______________________________________ExcelRecordReader");
 
-		//String filepath = conf.get("hive.excel.file.path");		
+		String filepath = conf.get("hive.excel.file.path");		
 		String sheetName = conf.get("hive.excel.sheet.name");		
 		Integer sheetIndex = conf.getInt("hive.excel.sheet.index", 0);		
+		//conf.set("map.input.file", filepath);
 
 		Path path = split.getPath();
 		FileSystem fs = path.getFileSystem(conf);
