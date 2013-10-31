@@ -7,7 +7,6 @@ import org.apache.hadoop.fs.FSDataInputStream;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.LongWritable;
-import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapred.JobConf;
 import org.apache.hadoop.mapred.RecordReader;
 import org.apache.poi.openxml4j.opc.OPCPackage;
@@ -19,57 +18,58 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.nexr.hive.excel.ExcelRowWritable;
 import com.nexr.hive.excel.ExcelSplit;
 
-public class ExcelRecordReader implements RecordReader<LongWritable, Text>{
+public class ExcelRecordReader implements RecordReader<LongWritable, ExcelRowWritable> {
 	private static final Logger logger = LoggerFactory.getLogger(ExcelRecordReader.class);
-	
+
 	private OPCPackage pkg;
 	private Workbook workbook;
 	private Sheet sheet;
-	
+
 	private long max;
 	private long pos;
 
-	public ExcelRecordReader(JobConf conf, ExcelSplit split) throws IOException{
+	public ExcelRecordReader(JobConf conf, ExcelSplit split) throws IOException {
 		logger.info("_______________________________________ExcelRecordReader");
 
-		String filepath = conf.get("hive.excel.file.path");		
-		String sheetName = conf.get("hive.excel.sheet.name");		
-		Integer sheetIndex = conf.getInt("hive.excel.sheet.index", 0);		
+		String filepath = conf.get("hive.excel.file.path");
+		String sheetName = conf.get("hive.excel.sheet.name");
+		Integer sheetIndex = conf.getInt("hive.excel.sheet.index", 0);
 		//conf.set("map.input.file", filepath);
 
 		Path path = split.getPath();
 		FileSystem fs = path.getFileSystem(conf);
 		FSDataInputStream fis = fs.open(path);
-		
-		try{
+
+		try {
 			pkg = OPCPackage.open(fis);
 			workbook = new XSSFWorkbook(pkg);
-		}catch(Exception e){
+		} catch (Exception e) {
 			logger.error(null, e);
 		}
-		
-		if(StringUtils.isNotEmpty(sheetName)){
+
+		if (StringUtils.isNotEmpty(sheetName)) {
 			sheet = workbook.getSheet(sheetName);
-		}else{
+		} else {
 			sheet = workbook.getSheetAt(sheetIndex);
 		}
-		
+
 		pos = 0;
 		max = sheet.getLastRowNum();
 	}
 
 	@Override
 	public void close() throws IOException {
-		if(pkg!=null) {
+		if (pkg != null) {
 			pkg.close();
 		}
 	}
 
 	@Override
 	public float getProgress() throws IOException {
-		return max==0 ? 1.0f : (float)pos / (float)max;
+		return max == 0 ? 1.0f : (float) pos / (float) max;
 	}
 
 	@Override
@@ -78,8 +78,8 @@ public class ExcelRecordReader implements RecordReader<LongWritable, Text>{
 	}
 
 	@Override
-	public Text createValue() {
-		return new Text();
+	public ExcelRowWritable createValue() {
+		return new ExcelRowWritable();
 	}
 
 	@Override
@@ -88,21 +88,18 @@ public class ExcelRecordReader implements RecordReader<LongWritable, Text>{
 	}
 
 	@Override
-	public boolean next(LongWritable key, Text value) throws IOException {
-		Row row = sheet.getRow((int)pos);
-		if(row==null){
+	public boolean next(LongWritable key, ExcelRowWritable value) throws IOException {
+		Row row = sheet.getRow((int) pos);
+		if (row == null) {
 			return false;
 		}
-		
-		StringBuffer sb = new StringBuffer();
-		for(Cell cell : row){
-			cell.setCellType(Cell.CELL_TYPE_STRING);
-			sb.append(cell.getStringCellValue());
-			sb.append("\t");
-		}
-		
+
 		key.set(pos);
-		value.set(sb.toString());
+
+		for (Cell cell : row) {
+			cell.setCellType(Cell.CELL_TYPE_STRING);
+			value.add(cell);
+		}
 
 		++pos;
 		return true;

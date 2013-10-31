@@ -19,7 +19,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.nexr.hive.excel.input.ExcelInputFormat;
-
+import com.nexr.hive.excel.output.ExcelOutputFormat;
 
 public class ExcelStorageHandler extends DefaultStorageHandler implements HiveMetaHook {
 	private static final Logger logger = LoggerFactory.getLogger(ExcelStorageHandler.class);
@@ -28,8 +28,7 @@ public class ExcelStorageHandler extends DefaultStorageHandler implements HiveMe
 
 	@Override
 	public boolean supports(Table tbl, AlterTableTypes alter) {
-		return
-				alter == AlterTableDesc.AlterTableTypes.ADDPROPS ||
+		return alter == AlterTableDesc.AlterTableTypes.ADDPROPS ||
 				alter == AlterTableDesc.AlterTableTypes.DROPPROPS ||
 				alter == AlterTableDesc.AlterTableTypes.ADDSERDEPROPS;
 
@@ -43,12 +42,12 @@ public class ExcelStorageHandler extends DefaultStorageHandler implements HiveMe
 
 	@Override
 	public Class<? extends OutputFormat> getOutputFormatClass() {
-		return super.getOutputFormatClass();
+		return ExcelOutputFormat.class;
 	}
 
 	@Override
 	public Class<? extends SerDe> getSerDeClass() {
-		return super.getSerDeClass();
+		return ExcelSerDe.class; // lazy simple serde
 	}
 
 	@Override
@@ -60,7 +59,7 @@ public class ExcelStorageHandler extends DefaultStorageHandler implements HiveMe
 	public void configureInputJobProperties(TableDesc tableDesc,
 			Map<String, String> jobProperties) {
 
-		for(Map.Entry<Object, Object> entry : tableDesc.getProperties().entrySet()){
+		for (Map.Entry<Object, Object> entry : tableDesc.getProperties().entrySet()) {
 			logger.info(String.format("input job properties = %s : %s", entry.getKey(), entry.getValue()));
 			jobProperties.put(ObjectUtils.toString(entry.getKey()), ObjectUtils.toString(entry.getValue()));
 		}
@@ -70,7 +69,7 @@ public class ExcelStorageHandler extends DefaultStorageHandler implements HiveMe
 	public void configureOutputJobProperties(TableDesc tableDesc,
 			Map<String, String> jobProperties) {
 
-		for(Map.Entry<Object, Object> entry : tableDesc.getProperties().entrySet()){
+		for (Map.Entry<Object, Object> entry : tableDesc.getProperties().entrySet()) {
 			logger.info(String.format("output job properties = %s : %s", entry.getKey(), entry.getValue()));
 			jobProperties.put(ObjectUtils.toString(entry.getKey()), ObjectUtils.toString(entry.getValue()));
 		}
@@ -80,7 +79,7 @@ public class ExcelStorageHandler extends DefaultStorageHandler implements HiveMe
 	public void configureTableJobProperties(TableDesc tableDesc,
 			Map<String, String> jobProperties) {
 
-		for(Map.Entry<Object, Object> entry : tableDesc.getProperties().entrySet()){
+		for (Map.Entry<Object, Object> entry : tableDesc.getProperties().entrySet()) {
 			logger.info(String.format("table job properties = %s : %s", entry.getKey(), entry.getValue()));
 			jobProperties.put(ObjectUtils.toString(entry.getKey()), ObjectUtils.toString(entry.getValue()));
 		}
@@ -99,13 +98,13 @@ public class ExcelStorageHandler extends DefaultStorageHandler implements HiveMe
 	@Override
 	public void commitCreatePartition(
 			org.apache.hadoop.hive.metastore.api.Table arg0, Partition arg1)
-					throws MetaException {
+			throws MetaException {
 	}
 
 	@Override
 	public void commitCreateTable(
 			org.apache.hadoop.hive.metastore.api.Table arg0)
-					throws MetaException {
+			throws MetaException {
 	}
 
 	@Override
@@ -117,13 +116,13 @@ public class ExcelStorageHandler extends DefaultStorageHandler implements HiveMe
 	@Override
 	public void commitDropTable(
 			org.apache.hadoop.hive.metastore.api.Table arg0, boolean arg1)
-					throws MetaException {
+			throws MetaException {
 	}
 
 	@Override
 	public void preCreatePartition(
 			org.apache.hadoop.hive.metastore.api.Table arg0, Partition arg1)
-					throws MetaException {
+			throws MetaException {
 	}
 
 	@Override
@@ -134,7 +133,7 @@ public class ExcelStorageHandler extends DefaultStorageHandler implements HiveMe
 	@Override
 	public void preDropPartition(
 			org.apache.hadoop.hive.metastore.api.Table arg0, Partition arg1)
-					throws MetaException {
+			throws MetaException {
 	}
 
 	@Override
@@ -145,24 +144,24 @@ public class ExcelStorageHandler extends DefaultStorageHandler implements HiveMe
 	@Override
 	public void rollbackCreatePartition(
 			org.apache.hadoop.hive.metastore.api.Table arg0, Partition arg1)
-					throws MetaException {
+			throws MetaException {
 	}
 
 	@Override
 	public void rollbackCreateTable(
 			org.apache.hadoop.hive.metastore.api.Table arg0)
-					throws MetaException {
+			throws MetaException {
 	}
 
 	@Override
 	public void rollbackDropPartition(
 			org.apache.hadoop.hive.metastore.api.Table arg0, Partition arg1)
-					throws MetaException {
+			throws MetaException {
 	}
 
 	@Override
 	public void rollbackDropTable(
 			org.apache.hadoop.hive.metastore.api.Table arg0)
-					throws MetaException {
+			throws MetaException {
 	}
 }

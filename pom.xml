@@ -10,7 +10,7 @@
 	<name>hive-excel-handler</name>
 
 	<properties>
-		<hadoop.version>1.2.1</hadoop.version>
+		<hadoop.version>0.20.2-cdh3u5</hadoop.version>
 		<hive.version>0.11.0-nr1009</hive.version>
 		<!-- <hive.version>0.12.0</hive.version> -->
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -63,6 +63,13 @@
 			<scope>test</scope>
 		</dependency>
 	</dependencies>
+
+	<repositories>
+		<repository>
+			<id>cloudera</id>
+			<url>https://repository.cloudera.com/artifactory/cloudera-repos/</url>
+		</repository>
+	</repositories>
 
 	<build>
 		<plugins>
