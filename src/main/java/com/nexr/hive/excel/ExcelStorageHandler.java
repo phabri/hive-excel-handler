@@ -5,13 +5,14 @@ import java.util.Map;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.hive.metastore.HiveMetaHook;
-import org.apache.hadoop.hive.metastore.api.MetaException;
-import org.apache.hadoop.hive.metastore.api.Partition;
-import org.apache.hadoop.hive.ql.metadata.DefaultStorageHandler;
+import org.apache.hadoop.hive.ql.metadata.HiveException;
+import org.apache.hadoop.hive.ql.metadata.HiveStorageHandler;
 import org.apache.hadoop.hive.ql.metadata.Table;
 import org.apache.hadoop.hive.ql.plan.AlterTableDesc;
 import org.apache.hadoop.hive.ql.plan.AlterTableDesc.AlterTableTypes;
 import org.apache.hadoop.hive.ql.plan.TableDesc;
+import org.apache.hadoop.hive.ql.security.authorization.DefaultHiveAuthorizationProvider;
+import org.apache.hadoop.hive.ql.security.authorization.HiveAuthorizationProvider;
 import org.apache.hadoop.hive.serde2.SerDe;
 import org.apache.hadoop.mapred.InputFormat;
 import org.apache.hadoop.mapred.OutputFormat;
@@ -21,7 +22,7 @@ import org.slf4j.LoggerFactory;
 import com.nexr.hive.excel.input.ExcelInputFormat;
 import com.nexr.hive.excel.output.ExcelOutputFormat;
 
-public class ExcelStorageHandler extends DefaultStorageHandler implements HiveMetaHook {
+public class ExcelStorageHandler implements HiveStorageHandler {
 	private static final Logger logger = LoggerFactory.getLogger(ExcelStorageHandler.class);
 
 	private Configuration conf;
@@ -37,22 +38,29 @@ public class ExcelStorageHandler extends DefaultStorageHandler implements HiveMe
 
 	@Override
 	public Class<? extends InputFormat> getInputFormatClass() {
+		logger.debug("_____________________________________getInputFormatClass");
+
 		return ExcelInputFormat.class;
 	}
 
 	@Override
 	public Class<? extends OutputFormat> getOutputFormatClass() {
+		logger.debug("_____________________________________getOutputFormatClass");
+
 		return ExcelOutputFormat.class;
 	}
 
 	@Override
 	public Class<? extends SerDe> getSerDeClass() {
-		return ExcelSerDe.class; // lazy simple serde
+		logger.debug("_____________________________________getSerDeClass");
+
+		return ExcelSerDe.class;
+		//return super.getSerDeClass();
 	}
 
 	@Override
 	public HiveMetaHook getMetaHook() {
-		return this;
+		return null;
 	}
 
 	@Override
@@ -96,72 +104,8 @@ public class ExcelStorageHandler extends DefaultStorageHandler implements HiveMe
 	}
 
 	@Override
-	public void commitCreatePartition(
-			org.apache.hadoop.hive.metastore.api.Table arg0, Partition arg1)
-			throws MetaException {
+	public HiveAuthorizationProvider getAuthorizationProvider() throws HiveException {
+		return new DefaultHiveAuthorizationProvider();
 	}
 
-	@Override
-	public void commitCreateTable(
-			org.apache.hadoop.hive.metastore.api.Table arg0)
-			throws MetaException {
-	}
-
-	@Override
-	public void commitDropPartition(
-			org.apache.hadoop.hive.metastore.api.Table arg0, Partition arg1,
-			boolean arg2) throws MetaException {
-	}
-
-	@Override
-	public void commitDropTable(
-			org.apache.hadoop.hive.metastore.api.Table arg0, boolean arg1)
-			throws MetaException {
-	}
-
-	@Override
-	public void preCreatePartition(
-			org.apache.hadoop.hive.metastore.api.Table arg0, Partition arg1)
-			throws MetaException {
-	}
-
-	@Override
-	public void preCreateTable(org.apache.hadoop.hive.metastore.api.Table arg0)
-			throws MetaException {
-	}
-
-	@Override
-	public void preDropPartition(
-			org.apache.hadoop.hive.metastore.api.Table arg0, Partition arg1)
-			throws MetaException {
-	}
-
-	@Override
-	public void preDropTable(org.apache.hadoop.hive.metastore.api.Table arg0)
-			throws MetaException {
-	}
-
-	@Override
-	public void rollbackCreatePartition(
-			org.apache.hadoop.hive.metastore.api.Table arg0, Partition arg1)
-			throws MetaException {
-	}
-
-	@Override
-	public void rollbackCreateTable(
-			org.apache.hadoop.hive.metastore.api.Table arg0)
-			throws MetaException {
-	}
-
-	@Override
-	public void rollbackDropPartition(
-			org.apache.hadoop.hive.metastore.api.Table arg0, Partition arg1)
-			throws MetaException {
-	}
-
-	@Override
-	public void rollbackDropTable(
-			org.apache.hadoop.hive.metastore.api.Table arg0)
-			throws MetaException {
-	}
 }
