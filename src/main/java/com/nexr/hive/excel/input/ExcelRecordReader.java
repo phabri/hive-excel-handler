@@ -7,7 +7,6 @@ import org.apache.hadoop.fs.FSDataInputStream;
 import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.LongWritable;
-import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapred.JobConf;
 import org.apache.hadoop.mapred.RecordReader;
 import org.apache.poi.openxml4j.opc.OPCPackage;
@@ -19,9 +18,10 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.nexr.hive.excel.ExcelRowWritable;
 import com.nexr.hive.excel.ExcelSplit;
 
-public class ExcelRecordReader implements RecordReader<LongWritable, Text> {
+public class ExcelRecordReader implements RecordReader<LongWritable, ExcelRowWritable> {
 	private static final Logger logger = LoggerFactory.getLogger(ExcelRecordReader.class);
 
 	private OPCPackage pkg;
@@ -78,8 +78,8 @@ public class ExcelRecordReader implements RecordReader<LongWritable, Text> {
 	}
 
 	@Override
-	public Text createValue() {
-		return new Text();
+	public ExcelRowWritable createValue() {
+		return new ExcelRowWritable();
 	}
 
 	@Override
@@ -88,7 +88,7 @@ public class ExcelRecordReader implements RecordReader<LongWritable, Text> {
 	}
 
 	@Override
-	public boolean next(LongWritable key, Text value) throws IOException {
+	public boolean next(LongWritable key, ExcelRowWritable value) throws IOException {
 		Row row = sheet.getRow((int) pos);
 		if (row == null) {
 			return false;
@@ -96,16 +96,12 @@ public class ExcelRecordReader implements RecordReader<LongWritable, Text> {
 
 		key.set(pos);
 
-		final char ctrla = '\u0001';
-		StringBuffer sb = new StringBuffer();
 		for (Cell cell : row) {
 			cell.setCellType(Cell.CELL_TYPE_STRING);
-			sb.append(cell.getStringCellValue());
-			sb.append(ctrla);
+			value.add(cell);
 		}
 
-		value.set(sb.toString());
-		logger.debug("yswoo value : " + value.toString());
+		//logger.debug("value : " + value.toString());
 
 		++pos;
 		return true;

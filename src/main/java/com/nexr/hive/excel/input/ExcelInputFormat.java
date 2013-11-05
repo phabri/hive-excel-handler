@@ -9,7 +9,6 @@ import org.apache.hadoop.fs.FileSystem;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.hive.ql.io.HiveInputFormat;
 import org.apache.hadoop.io.LongWritable;
-import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapred.InputSplit;
 import org.apache.hadoop.mapred.JobConf;
 import org.apache.hadoop.mapred.RecordReader;
@@ -17,13 +16,14 @@ import org.apache.hadoop.mapred.Reporter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.nexr.hive.excel.ExcelRowWritable;
 import com.nexr.hive.excel.ExcelSplit;
 
-public class ExcelInputFormat extends HiveInputFormat<LongWritable, Text> {
+public class ExcelInputFormat extends HiveInputFormat<LongWritable, ExcelRowWritable> {
 	private static final Logger logger = LoggerFactory.getLogger(ExcelInputFormat.class);
 
 	@Override
-	public RecordReader<LongWritable, Text> getRecordReader(
+	public RecordReader<LongWritable, ExcelRowWritable> getRecordReader(
 			InputSplit split, JobConf conf,
 			Reporter reporter) throws IOException {
 		logger.info("_______________________________________getRecordReader");

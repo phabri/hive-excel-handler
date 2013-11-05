@@ -7,16 +7,17 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.apache.hadoop.io.Writable;
+import org.apache.poi.ss.usermodel.Cell;
 
 public class ExcelRowWritable implements Writable {
 
-	private final List<String> row = new ArrayList<String>();
+	private final List<Cell> row = new ArrayList<Cell>();
 
-	public void add(String cell) {
+	public void add(Cell cell) {
 		row.add(cell);
 	}
 
-	public List<String> get() {
+	public List<Cell> get() {
 		return row;
 	}
 

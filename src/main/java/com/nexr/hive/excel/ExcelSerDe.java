@@ -21,6 +21,7 @@ import org.apache.hadoop.hive.serde2.typeinfo.StructTypeInfo;
 import org.apache.hadoop.hive.serde2.typeinfo.TypeInfo;
 import org.apache.hadoop.hive.serde2.typeinfo.TypeInfoUtils;
 import org.apache.hadoop.io.Writable;
+import org.apache.poi.ss.usermodel.Cell;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,22 +37,9 @@ public class ExcelSerDe extends AbstractSerDe {
 	private ObjectInspector objectInspector;
 
 	@Override
-	public List<String> deserialize(Writable writable) throws SerDeException {
+	public List<Cell> deserialize(Writable writable) throws SerDeException {
 		logger.debug("___________________________________deserialize");
-		logger.debug("writable : " + writable);
-
-		//		List<String> values = new ArrayList<String>();
-		//		for (Cell cell : ((ExcelRowWritable) writable).get()) {
-		//			cell.setCellType(Cell.CELL_TYPE_STRING);
-		//			values.add(cell.getStringCellValue());
-		//		}
 		return ((ExcelRowWritable) writable).get();
-
-		//		if (writable instanceof ExcelRowWritable) {
-		//			return ((ExcelRowWritable) writable).get();
-		//		} else {
-		//			throw new SerDeException("Expected ExcelRowWritable, received " + writable.getClass().getName());
-		//		}
 	}
 
 	@Override
@@ -89,10 +77,6 @@ public class ExcelSerDe extends AbstractSerDe {
 		PrimitiveObjectInspector[] columnOIsArray = toPrimitiveJavaOIs(columnTypes);
 		objectInspector = ObjectInspectorFactory.getStandardStructObjectInspector(columnNames,
 				new ArrayList<ObjectInspector>(Arrays.asList(columnOIsArray)));
-
-		//structTypeInfo = (StructTypeInfo) TypeInfoFactory.getStructTypeInfo(columnNames, this.columnTypes);
-		//objectInspector = TypeInfoUtils.getStandardJavaObjectInspectorFromTypeInfo(structTypeInfo);
-
 	}
 
 	@Override
