@@ -28,15 +28,6 @@ public class ExcelStorageHandler implements HiveStorageHandler {
 	private Configuration conf;
 
 	@Override
-	public boolean supports(Table tbl, AlterTableTypes alter) {
-		return alter == AlterTableDesc.AlterTableTypes.ADDPROPS ||
-				alter == AlterTableDesc.AlterTableTypes.DROPPROPS ||
-				alter == AlterTableDesc.AlterTableTypes.ADDSERDEPROPS;
-
-		//return super.supports(tbl, alter);
-	}
-
-	@Override
 	public Class<? extends InputFormat> getInputFormatClass() {
 		logger.debug("_____________________________________getInputFormatClass");
 
